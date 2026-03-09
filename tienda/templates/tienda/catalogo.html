@@ -1,63 +1,315 @@
-{% extends 'tienda/base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo ✦ Portal Teo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* --- ESTILO TEO 1.5 CORE --- */
+        :root {
+            --ink: #000000;
+            --indigo-shadow: #4b0082;
+            --cream-bg: #fdf5e6;
+            --violet-deep: #2b1b54;
+            --verde-minvu: #2e5b32;
+        }
 
-{% block title %}✦ Catálogo de Productos{% endblock %}
+        body { 
+            background-color: var(--cream-bg); 
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            transition: background-color 0.8s ease;
+            color: var(--ink);
+            overflow-x: hidden;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
 
-{% block content %}
-<h1 class="mb-5 fw-bold text-uppercase" style="color: #2b1b54; border-left: 10px solid #000; padding-left: 20px; letter-spacing: 2px;">
-    Galería de Inventario
-</h1>
+        /* Grano de papel pesado para acabado tradicional */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.08;
+            pointer-events: none;
+            background-image: url('https://www.transparenttextures.com/patterns/felt.png');
+            z-index: 9999;
+        }
 
-<div class="row">
-    {% for producto in productos %}
-    <div class="col-md-4 mb-5">
-        <div class="card h-100" style="border: 4px solid #000; border-radius: 0; box-shadow: 12px 12px 0px #4b0082; background-color: #fff;">
-            
-{% if producto.imagen_url %}
-    <img src="{{ producto.imagen_url }}" class="card-img-top" alt="{{ producto.nombre }}" 
-         style="border-bottom: 4px solid #000; height: 250px; object-fit: cover; display: block;">
-{% else %}
-    <img src="https://via.placeholder.com/400x250?text=Sin+Imagen" class="card-img-top" 
-         style="border-bottom: 4px solid #000; height: 250px; object-fit: cover;">
-{% endif %}
-            <div class="card-body d-flex flex-column">
-                <h5 class="card-title fw-bold" style="color: #000; font-size: 1.4rem;">{{ producto.nombre }}</h5>
-                
-                <p class="card-text text-muted" style="font-style: italic; border-left: 3px solid #2b1b54; padding-left: 10px;">
-                    {{ producto.descripcion }}
-                </p>
-                
-                <div class="mt-auto">
-                    <h4 class="fw-bold mb-1" style="color: #4b0082;">${{ producto.precio }}</h4>
-                    <p class="text-uppercase small fw-bold mb-3" style="color: #000;">Disponibilidad: {{ producto.stock }} unidades</p>
-                    
-                    <a href="{% url 'agregar' producto.id %}" class="btn w-100 fw-bold text-uppercase" 
-                       style="background-color: #2b1b54; color: #fdf5e6; border: 3px solid #000; border-radius: 0; box-shadow: 4px 4px 0px #000; transition: 0.1s;">
-                        Añadir al Equipo ✦
-                    </a>
+        .content-wrapper { position: relative; z-index: 20; flex: 1; }
+
+        /* --- NAVEGACIÓN --- */
+        .navbar-custom {
+            background-color: var(--violet-deep);
+            border-bottom: 5px solid var(--ink);
+        }
+
+        .btn-portal {
+            border: 3px solid var(--ink);
+            border-radius: 0;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 0 5px;
+            box-shadow: 4px 4px 0px var(--ink);
+            transition: 0.1s;
+        }
+
+        /* --- VISUALIZADOR --- */
+        .visualizador-panel {
+            border: 5px solid var(--ink);
+            background-color: #ffffff;
+            box-shadow: 12px 12px 0px var(--indigo-shadow);
+        }
+
+        .monitor-frame {
+            border: 4px solid var(--ink);
+            aspect-ratio: 16/9;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #img-display {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: opacity 0.6s ease-in-out;
+        }
+
+        /* --- SECCIONES DEL FOOTER --- */
+        .footer-section {
+            border-top: 5px solid var(--ink);
+            padding: 60px 0;
+        }
+
+        /* Estilos específicos para el formulario de contacto */
+        .form-contacto-input {
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 15px;
+            background-color: #ffffff;
+        }
+        
+        .form-contacto-input:focus {
+            border-color: var(--ink);
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+            outline: none;
+        }
+
+        .btn-enviar-contacto {
+            background-color: var(--verde-minvu);
+            color: #ffffff;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            padding: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-enviar-contacto:hover {
+            background-color: #1e3d21;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body id="main-body">
+
+    <div class="content-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom py-3">
+            <div class="container">
+                <a class="navbar-brand fw-bold fs-2" href="/">✦ PORTAL TEO</a>
+                <div class="mx-auto d-flex">
+                    <button onclick="sintonizarPortal('NUBES')" class="btn btn-light btn-portal">☁️ Nubes</button>
+                    <button onclick="sintonizarPortal('LAB')" class="btn btn-dark btn-portal">⚙️ Lab</button>
+                    <button onclick="sintonizarPortal('AUTOMATA')" class="btn btn-info btn-portal">🤖 Automatons</button>
+                </div>
+                <a href="{% url 'ver_carrito' %}" class="btn btn-light btn-portal" style="background: #fff;">🛒</a>
+            </div>
+        </nav>
+
+        <div class="container mt-5 mb-2 text-center">
+            <h1 class="fw-bold text-uppercase" style="color: var(--violet-deep); letter-spacing: 2px;">
+                Diseño de objetos y personajes 3D
+            </h1>
+        </div>
+
+        <div class="container mt-4">
+            <div class="visualizador-panel p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-5">
+                        <div class="monitor-frame">
+                            <img id="img-display" src="">
+                        </div>
+                    </div>
+                    <div class="col-md-7 ps-md-5">
+                        <h2 class="fw-bold text-uppercase mb-1" style="color: var(--violet-deep);">
+                            ✦ SECTOR: <span id="portal-name">SINTONIZANDO...</span>
+                        </h2>
+                        <p class="fs-5 text-muted mb-4" id="portal-desc">Iniciando sistema...</p>
+                        
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-dark p-2" style="border: 2px solid #000;">SINTONÍA ACTIVA</span>
+                        </div>
+                        
+                        <audio id="portal-audio" loop>
+                            <source id="audio-src" src="" type="audio/mpeg">
+                        </audio>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    {% empty %}
-    <div class="col-12 text-center py-5">
-        <p class="fs-4" style="color: #2b1b54; border: 2px dashed #000; padding: 20px;">
-            No hay productos disponibles en las nubes por ahora.
-        </p>
-    </div>
-    {% endfor %}
-</div>
 
-<style>
-    /* Efecto de interacción para las tarjetas */
-    .card:hover {
-        transform: translate(-4px, -4px);
-        box-shadow: 16px 16px 0px #2b1b54 !important;
-    }
-    
-    /* Animación simple para el botón al presionar */
-    .btn:active {
-        transform: translate(2px, 2px);
-        box-shadow: 1px 1px 0px #000 !important;
-    }
-</style>
-{% endblock %}
+        <div class="container mt-5">
+            <div class="mb-4">
+                <h2 class="fw-bold text-uppercase d-flex align-items-center" style="color: var(--violet-deep); letter-spacing: 1px;">
+                    <span style="display: inline-block; width: 8px; height: 35px; background-color: var(--ink); margin-right: 15px;"></span>
+                    GALERÍA
+                </h2>
+            </div>
+
+            <div class="row g-4">
+                {% for producto in productos %}
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    <div class="card h-100" style="border: 4px solid var(--ink); border-radius: 0; box-shadow: 8px 8px 0px var(--indigo-shadow); background-color: #ffffff;">
+                        
+                        {% if producto.imagen_url %}
+                            <img src="{{ producto.imagen_url }}" class="card-img-top" alt="{{ producto.nombre }}" style="border-bottom: 4px solid var(--ink); object-fit: cover; aspect-ratio: 4/3;">
+                        {% elif producto.imagen %}
+                            <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}" style="border-bottom: 4px solid var(--ink); object-fit: cover; aspect-ratio: 4/3;">
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-center" style="height: 200px; background: #e2e2e2; border-bottom: 4px solid var(--ink);">
+                                <span class="text-muted fw-bold">SIN RENDER</span>
+                            </div>
+                        {% endif %}
+
+                        <div class="card-body d-flex flex-column p-3">
+                            <h5 class="fw-bold text-uppercase mb-1" style="color: var(--ink);">{{ producto.nombre }}</h5>
+                            
+                            <p class="small text-muted mb-3" style="font-style: italic; border-left: 2px solid var(--indigo-shadow); padding-left: 8px; flex-grow: 1;">
+                                {{ producto.descripcion|truncatewords:15 }}
+                            </p>
+                            
+                            <div class="mt-auto">
+                                <div class="d-flex flex-column mb-3">
+                                    <span class="fs-5 fw-bold" style="color: var(--violet-deep);">${{ producto.precio }}</span>
+                                    <span class="small fw-bold text-muted" style="font-size: 0.70rem; text-transform: uppercase;">
+                                        DISPONIBILIDAD: {{ producto.stock }} UNIDADES
+                                    </span>
+                                </div>
+                                
+                                <form action="{% url 'agregar' producto.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn w-100" style="background-color: var(--violet-deep); color: #fff; border: 3px solid var(--ink); border-radius: 0; font-weight: bold; text-transform: uppercase; box-shadow: 4px 4px 0px var(--ink); transition: transform 0.1s, box-shadow 0.1s;" onmouseover="this.style.transform='translate(-2px, -2px)'; this.style.boxShadow='6px 6px 0px var(--ink)';" onmouseout="this.style.transform='none'; this.style.boxShadow='4px 4px 0px var(--ink)';">
+                                        Añadir al equipo +
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5" style="border: 4px dashed var(--ink); background: rgba(255,255,255,0.7);">
+                    <h4 class="fw-bold text-uppercase" style="color: var(--violet-deep);">EL SECTOR ESTÁ VACÍO</h4>
+                    <p class="text-muted">No se detectaron blueprints ni assets en este cuadrante.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5">
+        <div class="footer-section bg-white text-center">
+            <div class="container" style="max-width: 500px;">
+                <h2 class="fw-bold mb-4" style="color: #1a252f;">Contacto</h2>
+                <form>
+                    <input type="text" class="form-control form-contacto-input" placeholder="Nombre">
+                    <input type="email" class="form-control form-contacto-input" placeholder="Email">
+                    <textarea class="form-control form-contacto-input" rows="3" placeholder="Mensaje"></textarea>
+                    <button type="submit" class="btn btn-enviar-contacto w-100">Enviar consulta</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="footer-gestion" class="footer-section text-center" style="background-color: #e8f5e9;">
+            <div class="container">
+                <h3 class="fw-bold text-uppercase">✦ GESTIÓN DE PROYECTOS TEO</h3>
+                <p class="text-muted">Diseño y Animación 3D.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const portalData = {
+            'NUBES': {
+                nombre: "Ciudad en las Nubes",
+                desc: "Proyecto 3D: Atmósfera de fantasia y epicidad.",
+                colorBg: "#fdf5e6",
+                colorFooter: "#e8f5e9",
+                audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+                imagenes: [ "{% static 'tienda/img/nubes.jpg' %}" ]
+            },
+            'LAB': {
+                nombre: "Laboratorio Dimensional",
+                desc: "Estilo 3d anime.",
+                colorBg: "#e2e2e2",
+                colorFooter: "#d1d1d1",
+                audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
+                imagenes: [ "{% static 'tienda/img/lab.jpg' %}" ]
+            },
+            'AUTOMATA': {
+                nombre: "Archivo de Automatons",
+                desc: "Era de las máquinas: Melancolía industrial pictórica.",
+                colorBg: "#e0f7fa",
+                colorFooter: "#b2ebf2",
+                audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3",
+                imagenes: [ "{% static 'tienda/img/automata.jpg' %}" ]
+            }
+        };
+
+        let currentPortal = 'NUBES';
+        let imgIndex = 0;
+        let loopInterval;
+
+        function sintonizarPortal(tipo) {
+            currentPortal = tipo;
+            imgIndex = 0;
+            const data = portalData[tipo];
+            
+            document.body.style.backgroundColor = data.colorBg;
+            document.getElementById('footer-gestion').style.backgroundColor = data.colorFooter;
+            document.getElementById('portal-name').innerText = data.nombre;
+            document.getElementById('portal-desc').innerText = data.desc;
+            
+            const imgElement = document.getElementById('img-display');
+            imgElement.src = data.imagenes[0];
+            
+            const audio = document.getElementById('portal-audio');
+            document.getElementById('audio-src').src = data.audio;
+            audio.load();
+            audio.play().catch(() => {});
+
+            clearInterval(loopInterval);
+            iniciarBucle();
+        }
+
+        function iniciarBucle() {
+            const imgElement = document.getElementById('img-display');
+            
+            loopInterval = setInterval(() => {
+                const imagenes = portalData[currentPortal].imagenes;
+                imgIndex = (imgIndex + 1) % imagenes.length;
+                
+                imgElement.style.opacity = 0.5;
+                setTimeout(() => {
+                    imgElement.src = imagenes[imgIndex];
+                    imgElement.style.opacity = 1;
+                }, 600);
+            }, 6000);
+        }
+
+        window.onload = () => sintonizarPortal('NUBES');
+    </script>
+</body>
+</html>

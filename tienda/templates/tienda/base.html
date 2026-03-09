@@ -1,16 +1,19 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}✦ Portal Multidimensional Teo{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         /* --- ESTILO TEO 1.5 CORE --- */
         :root {
             --ink: #000000;
-            --indigo-shadow: #4b0082; /* Sombra proyectada exclusiva */
-            --cream-bg: #fdf5e6; /* Base Cream/Ivory */
+            --indigo-shadow: #4b0082;
+            --cream-bg: #fdf5e6;
             --violet-deep: #2b1b54;
+            --verde-minvu: #2e5b32;
         }
 
         body { 
@@ -18,23 +21,30 @@
             font-family: 'Segoe UI', Tahoma, sans-serif;
             transition: background-color 0.8s ease;
             color: var(--ink);
+            overflow-x: hidden;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Textura de grano de papel pesado */
+        /* Grano de papel pesado para acabado tradicional */
         body::before {
             content: "";
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0.06;
+            opacity: 0.08;
             pointer-events: none;
             background-image: url('https://www.transparenttextures.com/patterns/felt.png');
             z-index: 9999;
         }
 
-        /* --- NAVEGACIÓN Y COMPONENTES --- */
+        .content-wrapper { position: relative; z-index: 20; flex: 1; }
+
+        /* --- NAVEGACIÓN --- */
         .navbar-custom {
             background-color: var(--violet-deep);
-            border-bottom: 5px solid var(--ink); /* Inking: Bold outlines */
+            border-bottom: 5px solid var(--ink);
         }
 
         .btn-portal {
@@ -47,7 +57,7 @@
             transition: 0.1s;
         }
 
-        /* --- VISUALIZADOR MULTIMEDIA --- */
+        /* --- VISUALIZADOR --- */
         .visualizador-panel {
             border: 5px solid var(--ink);
             background-color: #ffffff;
@@ -73,136 +83,141 @@
             padding: 60px 0;
         }
 
-        .input-teo {
-            border: 3px solid var(--ink) !important;
-            border-radius: 0 !important;
+        /* Estilos específicos para el formulario de contacto */
+        .form-contacto-input {
+            border: 1px solid #ced4da;
+            border-radius: 4px;
             padding: 12px;
+            margin-bottom: 15px;
+            background-color: #ffffff;
+        }
+        
+        .form-contacto-input:focus {
+            border-color: var(--ink);
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+            outline: none;
+        }
+
+        .btn-enviar-contacto {
+            background-color: var(--verde-minvu);
+            color: #ffffff;
             font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            padding: 12px;
+            transition: background-color 0.2s;
         }
 
-        .btn-action {
-            background-color: var(--violet-deep);
-            color: #fff;
-            border: 4px solid var(--ink);
-            border-radius: 0;
-            font-weight: bold;
-            text-transform: uppercase;
-            box-shadow: 6px 6px 0px var(--ink);
-            transition: 0.1s;
+        .btn-enviar-contacto:hover {
+            background-color: #1e3d21;
+            color: #ffffff;
         }
-
-        .btn-action:hover {
-            transform: translate(-3px, -3px);
-            box-shadow: 9px 9px 0px var(--ink);
-            color: #fff;
-        }
-
-        /* Temas Dinámicos */
-        .tema-lab { background-color: #e2e2e2 !important; }
-        .tema-automata { background-color: #e0f7fa !important; }
     </style>
 </head>
 <body id="main-body">
 
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom py-3">
-        <div class="container">
-            <a class="navbar-brand fw-bold fs-2" href="{% url 'catalogo' %}">✦ PORTAL TEO</a>
-            <div class="mx-auto d-flex">
-                <button onclick="sintonizarPortal('NUBES')" class="btn btn-light btn-portal">☁️ Nubes</button>
-                <button onclick="sintonizarPortal('LAB')" class="btn btn-dark btn-portal">🧪 Lab</button>
-                <button onclick="sintonizarPortal('AUTOMATA')" class="btn btn-info btn-portal">🤖 NieR</button>
+    <div class="content-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom py-3">
+            <div class="container">
+                <a class="navbar-brand fw-bold fs-2" href="/">✦ PORTAL TEO</a>
+                <div class="mx-auto d-flex">
+                    <button onclick="sintonizarPortal('NUBES')" class="btn btn-light btn-portal">☁️ Nubes</button>
+                    <button onclick="sintonizarPortal('LAB')" class="btn btn-dark btn-portal">⚙️ Lab</button>
+                    <button onclick="sintonizarPortal('AUTOMATA')" class="btn btn-info btn-portal">🤖 Automatons</button>
+                </div>
+                <a href="{% url 'ver_carrito' %}" class="btn btn-light btn-portal" style="background: #fff;">🛒</a>
             </div>
-            <a href="{% url 'ver_carrito' %}" class="btn btn-light btn-portal" style="background: #fff;">
-                🛒 CARRITO
-            </a>
-        </div>
-    </nav>
+        </nav>
 
-    <div class="container mt-5">
-        <div class="visualizador-panel p-4">
-            <div class="row align-items-center">
-                <div class="col-md-5">
-                    <div class="monitor-frame">
-                        <img id="img-display" src="https://picsum.photos/seed/nubes1/800/450">
+        <div class="container mt-5">
+            <div class="visualizador-panel p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-5">
+                        <div class="monitor-frame">
+                            <img id="img-display" src="">
+                        </div>
+                    </div>
+                    <div class="col-md-7 ps-md-5">
+                        <h2 class="fw-bold text-uppercase mb-1" style="color: var(--violet-deep);">
+                            ✦ SECTOR: <span id="portal-name">SINTONIZANDO...</span>
+                        </h2>
+                        <p class="fs-5 text-muted mb-4" id="portal-desc">Iniciando sistema...</p>
+                        
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-dark p-2" style="border: 2px solid #000;">SINTONÍA ACTIVA</span>
+                            <small class="ms-3">Bucle de visualización: 6.0s</small>
+                        </div>
+                        
+                        <audio id="portal-audio" loop>
+                            <source id="audio-src" src="" type="audio/mpeg">
+                        </audio>
                     </div>
                 </div>
-                <div class="col-md-7 ps-md-5">
-                    <h2 class="fw-bold text-uppercase mb-1" style="color: var(--violet-deep);">
-                        ✦ Sector: <span id="portal-name">Ciudad en las Nubes</span>
-                    </h2>
-                    <p class="fs-5 text-muted mb-4" id="portal-desc">Proyecto original de entorno 3D y topografía.</p>
-                    
-                    <audio id="portal-audio" loop>
-                        <source id="audio-src" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-                    </audio>
-                    
-                    <div class="d-flex align-items-center">
-                        <span class="badge bg-dark p-2" style="border: 2px solid #000;">SINTONÍA ACTIVA</span>
-                        <small class="ms-3 italic">Bucle de visualización: 6.0s</small>
-                    </div>
-                </div>
             </div>
         </div>
-    </div>
 
-    <div class="container mt-5" style="min-height: 400px;">
-        {% block content %}{% endblock %}
+        <div class="container mt-5">
+            {% block content %}{% endblock %}
+        </div>
     </div>
 
     <footer class="mt-5">
-        <div class="footer-section text-center bg-white">
-            <div class="container">
-                <h2 class="fw-bold text-uppercase">✦ Repositorio de Blueprints & Assets</h2>
-                <p class="text-muted mb-4">Descarga modelos 3D optimizados para proyectos de ingeniería y diseño.</p>
-                <button class="btn btn-action">Descargar Biblioteca 💾</button>
-            </div>
-        </div>
-
-        <div class="footer-section" style="background-color: var(--cream-bg);">
-            <div class="container" style="max-width: 700px;">
-                <h2 class="fw-bold text-center text-uppercase mb-4">📡 Terminal de Contacto</h2>
+        
+        <div class="footer-section bg-white text-center">
+            <div class="container" style="max-width: 500px;">
+                <h2 class="fw-bold mb-4" style="color: #1a252f;">Contacto</h2>
                 <form>
-                    <div class="row g-3">
-                        <div class="col-md-6"><input type="text" class="form-control input-teo" placeholder="Operador"></div>
-                        <div class="col-md-6"><input type="email" class="form-control input-teo" placeholder="Frecuencia Email"></div>
-                        <div class="col-12"><textarea class="form-control input-teo" rows="3" placeholder="Mensaje para el Laboratorio..."></textarea></div>
-                        <div class="col-12"><button type="submit" class="btn btn-action w-100">Enviar Señal ✦</button></div>
-                    </div>
+                    <input type="text" class="form-control form-contacto-input" placeholder="Nombre">
+                    <input type="email" class="form-control form-contacto-input" placeholder="Email">
+                    <textarea class="form-control form-contacto-input" rows="3" placeholder="Mensaje"></textarea>
+                    <button type="submit" class="btn btn-enviar-contacto w-100">Enviar consulta</button>
                 </form>
             </div>
         </div>
 
         <div id="footer-gestion" class="footer-section text-center" style="background-color: #e8f5e9;">
             <div class="container">
-                <h2 class="fw-bold text-uppercase">Gestión de Proyectos Mecánicos & QA</h2>
-                <p class="text-muted mb-4">Automatización de flujos de trabajo y consultoría técnica especializada.</p>
-                <button class="btn btn-action">Acceder al Sistema de Gestión</button>
+                <h3 class="fw-bold text-uppercase">✦ GESTIÓN DE PROYECTOS TEO</h3>
+                <p class="text-muted">Diseño y Animación 3D.</p>
             </div>
         </div>
+        
     </footer>
 
     <script>
         const portalData = {
             'NUBES': {
                 nombre: "Ciudad en las Nubes",
-                desc: "Proyecto 3D: Atmósfera de verano y follaje vibrante.",
-                bg: "", footer: "#e8f5e9",
+                desc: "Proyecto 3D: Atmósfera de fantasia y epicidad.",
+                colorBg: "#fdf5e6",
+                colorFooter: "#e8f5e9",
                 audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-                imagenes: ["https://picsum.photos/seed/nubes1/800/450", "https://picsum.photos/seed/nubes2/800/450"]
+                imagenes: [
+                    // Solo tu imagen estandarizada
+                    "{% static 'tienda/img/nubes.jpg' %}"
+                ]
             },
             'LAB': {
                 nombre: "Laboratorio Dimensional",
-                desc: "Estilo Toki Impasto: Ingeniería y rock progresivo.",
-                bg: "tema-lab", footer: "#d1d1d1",
+                desc: "Estilo 3d anime.",
+                colorBg: "#e2e2e2",
+                colorFooter: "#d1d1d1",
                 audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
-                imagenes: ["https://picsum.photos/seed/lab1/800/450", "https://picsum.photos/seed/lab2/800/450"]
+                imagenes: [
+                    // Solo tu imagen estandarizada
+                    "{% static 'tienda/img/lab.jpg' %}"
+                ]
             },
             'AUTOMATA': {
-                nombre: "Archivo del Autómata",
-                desc: "Melancolía pictórica: Frecuencias de NieR.",
-                bg: "tema-automata", footer: "#b2ebf2",
+                nombre: "Archivo de Automatons",
+                desc: "Era de las máquinas: Melancolía industrial pictórica.",
+                colorBg: "#e0f7fa",
+                colorFooter: "#b2ebf2",
                 audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3",
-                imagenes: ["https://picsum.photos/seed/nier1/800/450", "https://picsum.photos/seed/nier2/800/450"]
+                imagenes: [
+                    // Solo tu imagen estandarizada
+                    "{% static 'tienda/img/automata.jpg' %}"
+                ]
             }
         };
 
@@ -215,37 +230,43 @@
             imgIndex = 0;
             const data = portalData[tipo];
             
-            // Actualizar Interfaz
-            document.getElementById('main-body').className = data.bg;
-            document.getElementById('footer-gestion').style.backgroundColor = data.footer;
+            // Cambio de atmósfera
+            document.body.style.backgroundColor = data.colorBg;
+            document.getElementById('footer-gestion').style.backgroundColor = data.colorFooter;
             document.getElementById('portal-name').innerText = data.nombre;
             document.getElementById('portal-desc').innerText = data.desc;
             
-            // Audio Ambiental
+            // Reiniciar imagen inmediatamente al cambiar de portal
+            const imgElement = document.getElementById('img-display');
+            imgElement.src = data.imagenes[0];
+            
+            // Audio
             const audio = document.getElementById('portal-audio');
             document.getElementById('audio-src').src = data.audio;
             audio.load();
             audio.play().catch(() => {});
 
-            // Reiniciar Bucle de 6 segundos
             clearInterval(loopInterval);
             iniciarBucle();
         }
 
         function iniciarBucle() {
+            const imgElement = document.getElementById('img-display');
+            
             loopInterval = setInterval(() => {
                 const imagenes = portalData[currentPortal].imagenes;
                 imgIndex = (imgIndex + 1) % imagenes.length;
-                const imgElement = document.getElementById('img-display');
-                imgElement.style.opacity = 0;
+                
+                // Efecto de parpadeo suave sobre tu única imagen
+                imgElement.style.opacity = 0.5;
                 setTimeout(() => {
                     imgElement.src = imagenes[imgIndex];
                     imgElement.style.opacity = 1;
                 }, 600);
-            }, 6000); // 6 segundos exactos
+            }, 6000);
         }
 
-        iniciarBucle();
+        window.onload = () => sintonizarPortal('NUBES');
     </script>
 </body>
 </html>
