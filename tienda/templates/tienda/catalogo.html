@@ -1,25 +1,63 @@
 {% extends 'tienda/base.html' %}
 
-{% block title %}Catálogo de Productos{% endblock %}
+{% block title %}✦ Catálogo de Productos{% endblock %}
 
 {% block content %}
-<h1 class="mb-4" style="color: #2b1b54;">Nuestro Catálogo</h1>
+<h1 class="mb-5 fw-bold text-uppercase" style="color: #2b1b54; border-left: 10px solid #000; padding-left: 20px; letter-spacing: 2px;">
+    Galería de Inventario
+</h1>
 
 <div class="row">
     {% for producto in productos %}
-    <div class="col-md-4 mb-4">
-        <div class="card h-100" style="border: 2px solid #000;">
-            <div class="card-body">
-                <h5 class="card-title fw-bold">{{ producto.nombre }}</h5>
-                <p class="card-text">{{ producto.descripcion }}</p>
-                <h6 class="text-success">${{ producto.precio }}</h6>
-                <p class="text-muted small">Stock: {{ producto.stock }}</p>
-                <a href="{% url 'agregar' producto.id %}" class="btn w-100 text-white" style="background-color: #4b0082;">Agregar al Carrito</a>
+    <div class="col-md-4 mb-5">
+        <div class="card h-100" style="border: 4px solid #000; border-radius: 0; box-shadow: 12px 12px 0px #4b0082; background-color: #fff;">
+            
+{% if producto.imagen_url %}
+    <img src="{{ producto.imagen_url }}" class="card-img-top" alt="{{ producto.nombre }}" 
+         style="border-bottom: 4px solid #000; height: 250px; object-fit: cover; display: block;">
+{% else %}
+    <img src="https://via.placeholder.com/400x250?text=Sin+Imagen" class="card-img-top" 
+         style="border-bottom: 4px solid #000; height: 250px; object-fit: cover;">
+{% endif %}
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title fw-bold" style="color: #000; font-size: 1.4rem;">{{ producto.nombre }}</h5>
+                
+                <p class="card-text text-muted" style="font-style: italic; border-left: 3px solid #2b1b54; padding-left: 10px;">
+                    {{ producto.descripcion }}
+                </p>
+                
+                <div class="mt-auto">
+                    <h4 class="fw-bold mb-1" style="color: #4b0082;">${{ producto.precio }}</h4>
+                    <p class="text-uppercase small fw-bold mb-3" style="color: #000;">Disponibilidad: {{ producto.stock }} unidades</p>
+                    
+                    <a href="{% url 'agregar' producto.id %}" class="btn w-100 fw-bold text-uppercase" 
+                       style="background-color: #2b1b54; color: #fdf5e6; border: 3px solid #000; border-radius: 0; box-shadow: 4px 4px 0px #000; transition: 0.1s;">
+                        Añadir al Equipo ✦
+                    </a>
+                </div>
             </div>
         </div>
     </div>
     {% empty %}
-    <p>No hay productos disponibles por el momento.</p>
+    <div class="col-12 text-center py-5">
+        <p class="fs-4" style="color: #2b1b54; border: 2px dashed #000; padding: 20px;">
+            No hay productos disponibles en las nubes por ahora.
+        </p>
+    </div>
     {% endfor %}
 </div>
+
+<style>
+    /* Efecto de interacción para las tarjetas */
+    .card:hover {
+        transform: translate(-4px, -4px);
+        box-shadow: 16px 16px 0px #2b1b54 !important;
+    }
+    
+    /* Animación simple para el botón al presionar */
+    .btn:active {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0px #000 !important;
+    }
+</style>
 {% endblock %}
